@@ -1,0 +1,22 @@
+{
+  "name": "node-bc-apps",
+  "version": "1.0.0",
+  "description": "sandbox for integrating with BigCommerce API using node-bigcommerce",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tipleyg/node-bc-apps.git"
+  },
+  "author": "Geoffrey Tipley",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/tipleyg/node-bc-apps/issues"
+  },
+  "homepage": "https://github.com/tipleyg/node-bc-apps#readme",
+  "dependencies": {
+    "node-bigcommerce": "^4.1.0"
+  }
+}

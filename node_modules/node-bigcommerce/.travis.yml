@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+- '8'
+- '10'
+deploy:
+  provider: npm
+  email:
+    secure: dsBGPXl1VvR70rJ/UnRuaLwiesvmfxOSeWfuLOlWHU3+2uUA7xLOOIyjHxP3mlz9OLsL3A/tMsYBMj6bM3SrtvbtBwnAQZ+RKWjyIsiBTHYaIrXuJP+kbQIguaDTo8rC45U2VwZRQu50cc2Mln3jeGzlho4iPdZLe4rdRLnbAD0=
+  api_key:
+    secure: GPt9SSxfd2gDfd6YfjZtGZghjjT4mtlFhA6Yyojax1frU4gzH2j9sd0XuNI1Q/f0n7WAeo4pFPru5o2uxPJzQUlJzWy3DoLJX3rLrOviXX6zIgF7o4XCtYb3SVFIG7aEpNTxBbh1zQcL8ecHROzs7MFxE+y/dumsCSVFnfT3o8E=
+  on:
+    tags: true
+    repo: getconversio/node-bigcommerce
+notifications:
+  slack:
+    secure: fyAnH2j56FTfYCRCxhzDpuXKoBJ4DCNMPj7yCsCEr5gvQMl83Quzm+S6Kb+ORxxbvue9PpV0hyAmJlfRmNvYwj6Om0BneEKzKEj3/Useq8jMBzVDroe13s0nOIaAAHXYAfqJdgxNnzhep38WzIiFzS7StufGyYuxpka5ca6RCFQ=
