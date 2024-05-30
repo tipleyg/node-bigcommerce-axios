@@ -62,9 +62,9 @@ async function deleteProductVariants(config, variantSkus) {
     async function getProductVariantByProdId(productId, sku) {
         try {
             const response = await axios.get(`${baseUrl}/${productId}/variants?sku=${sku}&include_fields=sku`),
-                product = response.data[0];
-    
-            return product.id;
+                variant = response.data.data[0];
+            
+            return variant.id;
         } catch (error) {
             console.error(error);
         }
@@ -83,27 +83,19 @@ async function deleteProductVariants(config, variantSkus) {
     for (const variantSku of variantSkus) {
         const parentSku = getParentSkuByVariantSku(variantSku),
             productId = await getProductIdBySKU(parentSku),
-            variantId = await getProductVariantByProdId(productId);//,
-            //console.log(variantId);
-
-        /*if (!variantToDelete || !variantToDelete.id) {
-            console.log(`variantId not found variantSku:${variantSku} productId:${productId}`);
-            continue;
-        }
-
-        const variantId = variantToDelete.id;
+            variantId = await getProductVariantByProdId(productId, variantSku);
 
         if (!variantId) {
             console.log(`variantId is falsy variantSku:${variantSku} productId:${productId} variantId:${variantId}`);
             continue;
-        }*/
+        }
 
-        //await deleteProductVariant(productId, variantId);
+        await deleteProductVariant(productId, variantId);
     }
 }
 
 (async () => {    
-    const variantSkus = await getArrayDataFromCSV("./hoistsDeleteVariantSKUs.csv");
+    const variantSkus = await getArrayDataFromCSV("csv.csv");//"./hoistsDeleteVariantSKUs.csv");
     
     const config = getConfig();
     if (!config) throw Error("no config");
