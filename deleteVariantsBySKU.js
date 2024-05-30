@@ -95,7 +95,7 @@ async function deleteProductVariants(config, variantSkus) {
 }
 
 (async () => {    
-    const variantSkus = await getArrayDataFromCSV("csv.csv");//"./hoistsDeleteVariantSKUs.csv");
+    const variantSkus = await getArrayDataFromCSV("csv.csv");//"./hoistsDeleteVariantSkus.csv");
     
     const config = getConfig();
     if (!config) throw Error("no config");
