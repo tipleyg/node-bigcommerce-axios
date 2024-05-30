@@ -46,7 +46,7 @@ async function getArrayDataFromCSV(fileName) {
 
 async function deleteProductVariants(config, variantSkus) {
     const baseUrl = `https://api.bigcommerce.com/stores/${config.storeHash}/v3/catalog/products`,
-        getParentSkuByVariantSku = sku => sku.split("-")[0];
+        getParentSkuByVariantSku = sku => sku.split("-")[0];    //parent SKUs are known to be contained in variant SKUs before their first '-'
 
     async function getProductIdBySKU(sku) {
         try {
