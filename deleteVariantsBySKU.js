@@ -45,8 +45,11 @@ async function getArrayDataFromCSV(fileName) {
 }
 
 async function deleteProductVariants(config, variantSkus) {
-    const baseUrl = `https://api.bigcommerce.com/stores/${config.storeHash}/v3/catalog/products`,
-        getParentSkuByVariantSku = sku => sku.split("-")[0];    //parent SKUs are known to be contained in variant SKUs before their first '-'
+    const baseUrl = `https://api.bigcommerce.com/stores/${config.storeHash}/v3/catalog/products`;
+    
+    if (!sku.includes("-")) throw "SKU in unexpected format";
+    
+    const getParentSkuByVariantSku = sku => sku.split("-")[0];    //parent SKUs are known to be contained in variant SKUs before their first '-'
 
     async function getProductIdBySKU(sku) {
         try {
