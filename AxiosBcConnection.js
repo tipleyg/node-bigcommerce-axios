@@ -39,7 +39,7 @@ export default class AxiosBcConnection {
     
             return product.id;
         } catch (error) {
-            console.error(error);
+            throw Error(error);
         }
     }
 
@@ -50,7 +50,7 @@ export default class AxiosBcConnection {
             
             return variant?.id;
         } catch (error) {
-            console.error(error);
+            throw Error(error);
         }
     }
 
@@ -60,7 +60,7 @@ export default class AxiosBcConnection {
 
             console.log(`deleted ${productId}/${variantId} status:${response.status}`);
         } catch (error) {
-            console.error(error);
+            throw Error(error);
         }
     }
 }
