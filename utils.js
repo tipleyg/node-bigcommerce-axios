@@ -20,12 +20,12 @@ export function dedupeArray(arr) {
     return Array.from(new Set(arr));
 }
 
-export function splitCsvRows(rows) {
-    let keys;
+export function splitCsvRows(rows, hasHeaderRow = false) {
+    let keys = hasHeaderRow ? [] : [ "sku","productName" ];
     const csvData = [];
 
     rows.forEach((row, i) => {
-        if (!i) {
+        if (hasHeaderRow && !i) {
             //split header row to make keys
             keys = row.split(',');            
         } else {
