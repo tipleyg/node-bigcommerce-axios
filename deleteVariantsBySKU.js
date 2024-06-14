@@ -3,7 +3,6 @@ import AxiosBcConnection from './AxiosBcConnection.js';
 import { getArrayDataFromCSV, getParentSkuByVariantSku } from './utils.js';
 
 async function deleteProductVariants({ getProductIdBySKU, getProductVariantByProdId, deleteProductVariant }, variantSkus) {
-    const remainingSkus = [];
 
     for (const variantSku of variantSkus) {
         const parentSku = getParentSkuByVariantSku(variantSku),
