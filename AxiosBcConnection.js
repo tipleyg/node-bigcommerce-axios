@@ -24,11 +24,11 @@ export default class AxiosBcConnection {
         try {
             const configText = fs.readFileSync("config.json");
             
-            if (!configText) return;
+            if (!configText) throw Error("config error in getConfig()");
             
             return JSON.parse(configText);
         } catch (e) {
-            console.error(e);
+            throw Error("config error in getConfig()");
         }
     };
 
@@ -49,6 +49,16 @@ export default class AxiosBcConnection {
                 variant = response.data.data[0];
             
             return variant?.id;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async deleteProductVariant(productId, variantId) {
+        try {
+            const response = await axios.delete(`${baseUrl}/${productId}/variants/${variantId}`);
+
+            console.log(`deleted ${productId}/${variantId} status:${response.status}`);
         } catch (error) {
             console.error(error);
         }
