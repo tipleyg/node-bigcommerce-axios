@@ -22,7 +22,8 @@ async function checkForProductVariants({ getProductIdBySKU, getProductVariantByP
 
 async function doesVariantSkuExist() {    
     const aceCatalogBcConnection = new AxiosBcConnection(),
-        variantSkus = await getArrayDataFromCSV("csv.csv");//hoistsDeleteVariantSkus.csv"); 
+        filename = process.argv[2] || "csv.csv",
+        variantSkus = await getArrayDataFromCSV(filename);
     
     await checkForProductVariants(aceCatalogBcConnection, variantSkus);
 }
