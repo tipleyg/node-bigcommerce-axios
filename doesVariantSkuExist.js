@@ -26,6 +26,8 @@ async function doesVariantSkuExist() {
         variantSkus = await getArrayDataFromCSV(filename);
     
     await checkForProductVariants(aceCatalogBcConnection, variantSkus);
+    if (!variantSkus) throw Error("import missing content!");
+    
 }
 
 await doesVariantSkuExist();
