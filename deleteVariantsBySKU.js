@@ -1,93 +1,9 @@
-import axios from 'axios';
 import * as fs from 'fs';
+import AxiosBcConnection from './AxiosBcConnection.js';
+import { getArrayDataFromCSV, getParentSkuByVariantSku } from './utils.js';
 
-function getConfig() {
-    /*{
-        "logLevel": "info",
-        "clientId": "xxxx",
-        "secret": "xxxx",
-        "callback": "https://test.test/test",
-        "responseType": "json",
-        "storeHash": "storeHash",
-        "headers": { 
-            "Accept-Encoding": "*" 
-        },
-        "apiVersion": "v3"
-    }*/
-
-    try {
-        const configText = fs.readFileSync("config.json");
-        
-        if (!configText) return;
-        
-        return JSON.parse(configText);
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-function initAxiosHeaders(config) {
-    axios.defaults.headers.common['Accept'] = 'application/json';
-    axios.defaults.headers.common['Content-Type'] = 'application/json';
-    axios.defaults.headers.common['X-Auth-Token'] = config["x-auth-token"];
-}
-
-async function getArrayDataFromCSV(fileName) {
-    try {
-        const csvText = fs.readFileSync(fileName, 'utf8');
-        
-        if (!csvText) return;
-        
-        return csvText.split("\n");
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-async function deleteProductVariants(config, variantSkus) {
-    const baseUrl = `https://api.bigcommerce.com/stores/${config.storeHash}/v3/catalog/products`;
-    
-    const getParentSkuByVariantSku = sku => {
-        try {
-            if (!sku.includes("-")) throw "SKU in unexpected format";
-
-            return sku.split("-")[0];    //parent SKUs are known to be contained in variant SKUs before their first '-'
-        } catch(e) {
-            console.error(e);
-        }
-    };
-
-    async function getProductIdBySKU(sku) {
-        try {
-            const response = await axios.get(`${baseUrl}/?sku=${sku}&include_fields=`),
-                product = response.data.data[0];
-    
-            return product.id;
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    async function getProductVariantByProdId(productId, sku) {
-        try {
-            const response = await axios.get(`${baseUrl}/${productId}/variants?sku=${sku}&include_fields=sku`),
-                variant = response.data.data[0];
-            
-            return variant.id;
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    async function deleteProductVariant(productId, variantId) {
-        try {
-            const response = await axios.delete(`${baseUrl}/${productId}/variants/${variantId}`);
-
-            console.log(`deleted ${productId}/${variantId} status:${response.status}`);
-        } catch (error) {
-            console.error(error);
-        }
-    }
+async function deleteProductVariants({ getProductIdBySKU, getProductVariantByProdId, deleteProductVariant }, variantSkus) {
+    const remainingSkus = [];
 
     for (const variantSku of variantSkus) {
         const parentSku = getParentSkuByVariantSku(variantSku),
@@ -101,14 +17,18 @@ async function deleteProductVariants(config, variantSkus) {
 
         await deleteProductVariant(productId, variantId);
     }
+
+    fs.writeFileSync("./remainingSkusToBeManuallyDeleted.csv", remainingSkus.join("\n"));
 }
 
-(async () => {    
-    const variantSkus = await getArrayDataFromCSV("csv.csv");//"./hoistsDeleteVariantSkus.csv");
+async function deleteVariantsBySku() {    
+    const aceCatalogBcConnection = new AxiosBcConnection(),
+        filename = process.argv[2] || "csv.csv",
+        variantSkus = await getArrayDataFromCSV(filename);
     
-    const config = getConfig();
-    if (!config || !Object.keys(config).length) throw Error("no config");
-    initAxiosHeaders(config);
+    if (!variantSkus) throw Error("import missing content!");
     
-    await deleteProductVariants(config, variantSkus);
-})();
+    await deleteProductVariants(aceCatalogBcConnection, variantSkus);
+}
+
+await deleteVariantsBySku();
