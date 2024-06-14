@@ -63,4 +63,20 @@ export default class AxiosBcConnection {
             throw Error(error);
         }
     }
+
+    async updateProductVariantName(productId, { variantId, sku, productName }) {
+        const content = {
+            sku: sku,
+            option_display_name: productName
+        };
+
+        try {
+            console.log(JSON.stringify(content));
+            const response = await axios.put(`${baseUrl}/${productId}/variants/${variantId}`, content);
+
+            console.log(`updated ${productId}/${variantId} status:${response.status}`);
+        } catch (error) {
+            throw Error(error);
+        }
+    }
 }
