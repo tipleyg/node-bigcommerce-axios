@@ -16,8 +16,6 @@ async function deleteProductVariants({ getProductIdBySKU, getProductVariantByPro
 
         await deleteProductVariant(productId, variantId);
     }
-
-    fs.writeFileSync("./remainingSkusToBeManuallyDeleted.csv", remainingSkus.join("\n"));
 }
 
 async function deleteVariantsBySku() {    
