@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import AxiosBcConnection from './AxiosBcConnection.js';
 import { getArrayDataFromCSV, getParentSkuByVariantSku } from './utils.js';
 
