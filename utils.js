@@ -4,9 +4,9 @@ export async function getArrayDataFromCSV(fileName) {
     try {
         const csvText = fs.readFileSync(fileName, 'utf8');
         
-        if (!csvText) return;
+        if (!csvText) return null;
         
-        return dedupeArray(csvText.split("\n").map(str => str.trim()));
+        return dedupeArray(convertStringToArrayTrimmed(csvText));
     } catch (e) {
         console.error(e);
     }
