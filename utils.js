@@ -12,6 +12,10 @@ export async function getArrayDataFromCSV(fileName) {
     }
 }
 
+export function convertStringToArrayTrimmed(string) {
+    return string.split("\n").map(str => str.trim());
+}
+
 export function dedupeArray(arr) {
     return Array.from(new Set(arr));
 }
