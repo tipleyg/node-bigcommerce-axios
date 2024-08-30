@@ -97,6 +97,7 @@ export default class AxiosBcConnection {
                     ERROR: TOO_MANY
                     ERROR: TOO_MANY
                 `);
+                throw Error("ERROR: TOO_MANY");
             }
             //BC indicated in BIGDEV training that too_many indicates that you received
             //less data than you requested in this page
