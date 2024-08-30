@@ -79,7 +79,8 @@ export default class AxiosBcConnection {
         }
     }
 
-    async getAllProducts(urlParameters = "") {
+    async getAllProducts(urlParameters = "", filterFunction = () => true) {
+        console.log(urlParameters);
         if (urlParameters.length && urlParameters[0] !== "?") urlParameters = "?" + urlParameters;
         
         try {
@@ -104,9 +105,9 @@ export default class AxiosBcConnection {
             //todo: exclude the IDs that got included on this page and req the same-ish page with meta.pagination.current?
             
             if (pagination.links.next) {
-                return [].concat(response.data, (await this.getAllProducts(pagination.links.next)));
+                return [].concat(response.data.filter(filterFunction), (await this.getAllProducts(pagination.links.next)));
             } else {
-                return response.data;
+                return response.data.filter(filterFunction);
             }
         } catch (error) {
             throw Error(error);
