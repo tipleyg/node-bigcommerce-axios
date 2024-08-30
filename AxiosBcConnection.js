@@ -78,4 +78,47 @@ export default class AxiosBcConnection {
             throw Error(error);
         }
     }
+
+    getUrlParameters(params, ...args) {
+        args.forEach(arg => {
+            for (const key of Object.keys(arg)) {
+                params[key] = arg[key];
+            }
+        });
+
+        let paramString = '?',
+        i = 0;
+
+        for (const param in params) {
+            paramString += `${i++ ? '&' : ''}${param}=${params[param]}`;
+        }
+
+        return paramString;
+    }
+
+    async getAllProducts(urlParametersObj = {}, page = 0, limit = 25) {
+        //include: When you specify options or modifiers, results are limited to 10 per page.
+        if (urlParametersObj.include && (urlParametersObj.include.includes("modifiers") || urlParametersObj.include.includes("options"))){
+            if (limit > 10) {
+                console.error("v3/products limit overridden to 10: modifiers or options");
+                limit = 10;
+            }
+        }
+
+        const paramString = this.getUrlParameters(urlParametersObj, { page }, { limit });
+        
+        try {
+            const response = await axios.get(`${this.baseV3CatalogProductsUrl}${paramString}`);
+    
+            //handling for meta.pagination.too_many key? 
+            //exclude the IDs that got included on this page and req the same page?
+            
+            return response.data;
+        } catch (error) {
+            throw Error(error);
+        }
+    }
 }
+
+
+//always return response.data.data unless you want meta
