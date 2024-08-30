@@ -83,10 +83,11 @@ export default class AxiosBcConnection {
         if (urlParameters.length && urlParameters[0] !== "?") urlParameters = "?" + urlParameters;
         
         try {
-            const response = (await axios.get(`${this.baseV3CatalogProductsUrl}${urlParameters}`)).data;
+            const response = (await axios.get(`${this.baseV3CatalogProductsUrl}${urlParameters}`)).data,
+            { pagination } = response.meta;
             
             //create handling for meta.pagination.too_many key? 
-            if (response.meta.pagination.too_many) {
+            if (pagination.too_many) {
                 console.error(`
                     ERROR: TOO_MANY
                     ERROR: TOO_MANY
@@ -101,12 +102,15 @@ export default class AxiosBcConnection {
             //less data than you requested in this page
             //todo: exclude the IDs that got included on this page and req the same-ish page with meta.pagination.current?
             
-            return response;
+            if (pagination.links.next) {
+                return [].concat(response.data, (await this.getAllProducts(pagination.links.next)));
+            } else {
+                return response.data;
+            }
         } catch (error) {
             throw Error(error);
         }
     }
 }
-
 
 //always return response.data.data unless you want meta too
