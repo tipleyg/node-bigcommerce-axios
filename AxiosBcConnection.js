@@ -1,8 +1,6 @@
 import axios from 'axios';
 import * as fs from 'fs';
 
-let baseUrl = '';
-
 export default class AxiosBcConnection {
     constructor() {
         const { xAuthToken, storeHash } = this.getConfig();
@@ -11,7 +9,8 @@ export default class AxiosBcConnection {
         axios.defaults.headers.common['Content-Type'] = 'application/json';
         axios.defaults.headers.common['X-Auth-Token'] = xAuthToken;
 
-        baseUrl = `https://api.bigcommerce.com/stores/${storeHash}/v3/catalog/products`;
+        this.baseUrl = `https://api.bigcommerce.com/stores/${storeHash}`;
+        this.baseV3CatalogProductsUrl = `${this.baseUrl}/v3/catalog/products`;
     }
 
     getConfig() {
@@ -34,7 +33,7 @@ export default class AxiosBcConnection {
 
     async getProductIdBySKU(sku) {
         try {
-            const response = await axios.get(`${baseUrl}/?sku=${sku}&include_fields=`),
+            const response = await axios.get(`${this.baseV3CatalogProductsUrl}/?sku=${sku}&include_fields=`),
                 product = response.data.data[0];
     
             return product.id;
@@ -45,7 +44,7 @@ export default class AxiosBcConnection {
 
     async getProductVariantByProdId(productId, sku) {
         try {
-            const response = await axios.get(`${baseUrl}/${productId}/variants?sku=${sku}&include_fields=sku`),
+            const response = await axios.get(`${this.baseV3CatalogProductsUrl}/${productId}/variants?sku=${sku}&include_fields=sku`),
                 variant = response.data.data[0];
             
             return variant?.id;
@@ -56,7 +55,7 @@ export default class AxiosBcConnection {
 
     async deleteProductVariant(productId, variantId) {
         try {
-            const response = await axios.delete(`${baseUrl}/${productId}/variants/${variantId}`);
+            const response = await axios.delete(`${this.baseV3CatalogProductsUrl}/${productId}/variants/${variantId}`);
 
             console.log(`deleted ${productId}/${variantId} status:${response.status}`);
         } catch (error) {
@@ -72,7 +71,7 @@ export default class AxiosBcConnection {
 
         try {
             console.log(JSON.stringify(content));
-            const response = await axios.put(`${baseUrl}/${productId}/variants/${variantId}`, content);
+            const response = await axios.put(`${this.baseV3CatalogProductsUrl}/${productId}/variants/${variantId}`, content);
 
             console.log(`updated ${productId}/${variantId} status:${response.status}`);
         } catch (error) {
