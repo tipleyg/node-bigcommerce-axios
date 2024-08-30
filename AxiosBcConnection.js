@@ -106,7 +106,7 @@ export default class AxiosBcConnection {
         }
 
         const paramString = this.getUrlParameters(urlParametersObj, { page }, { limit });
-        
+
         try {
             const response = (await axios.get(`${this.baseV3CatalogProductsUrl}${paramString}`)).data;
             
