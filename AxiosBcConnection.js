@@ -79,36 +79,11 @@ export default class AxiosBcConnection {
         }
     }
 
-    getUrlParameters(params, ...args) {
-        args.forEach(arg => {
-            for (const key of Object.keys(arg)) {
-                params[key] = arg[key];
-            }
-        });
-
-        let paramString = '?',
-        i = 0;
-
-        for (const param in params) {
-            paramString += `${i++ ? '&' : ''}${param}=${params[param]}`;
-        }
-
-        return paramString;
-    }
-
-    async getAllProducts(urlParametersObj = {}, page = 0, limit = 25) {
-        //include: When you specify options or modifiers, results are limited to 10 per page.
-        if (urlParametersObj.include && (urlParametersObj.include.includes("modifiers") || urlParametersObj.include.includes("options"))){
-            if (limit > 10) {
-                console.error("v3/products limit overridden to 10: modifiers or options");
-                limit = 10;
-            }
-        }
-
-        const paramString = this.getUrlParameters(urlParametersObj, { page }, { limit });
-
+    async getAllProducts(urlParameters = "") {
+        if (urlParameters.length && urlParameters[0] !== "?") urlParameters = "?" + urlParameters;
+        
         try {
-            const response = (await axios.get(`${this.baseV3CatalogProductsUrl}${paramString}`)).data;
+            const response = (await axios.get(`${this.baseV3CatalogProductsUrl}${urlParameters}`)).data;
             
             //create handling for meta.pagination.too_many key? 
             if (response.meta.pagination.too_many) {
