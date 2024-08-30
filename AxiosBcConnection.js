@@ -134,4 +134,4 @@ export default class AxiosBcConnection {
 }
 
 
-//always return response.data.data unless you want meta
+//always return response.data.data unless you want meta too
