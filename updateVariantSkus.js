@@ -20,13 +20,13 @@ async function updateProductVariants({ getProductIdBySKU, getProductVariantByPro
 }
 
 async function updateVariantsBySku() {    
-    const aceCatalogBcConnection = new AxiosBcConnection(),
+    const catalogBcConnection = new AxiosBcConnection(),
         filename = process.argv[2] || "csv2.csv",
         variantData = splitCsvRows(await getArrayDataFromCSV(filename));
     
     if (!variantData || !variantData.length) throw Error("import missing content!");
     
-    await updateProductVariants(aceCatalogBcConnection, variantData);
+    await updateProductVariants(catalogBcConnection, variantData);
 }
 
 await updateVariantsBySku();

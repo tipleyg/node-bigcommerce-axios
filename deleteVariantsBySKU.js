@@ -18,13 +18,13 @@ async function deleteProductVariants({ getProductIdBySKU, getProductVariantByPro
 }
 
 async function deleteVariantsBySku() {    
-    const aceCatalogBcConnection = new AxiosBcConnection(),
+    const catalogBcConnection = new AxiosBcConnection(),
         filename = process.argv[2] || "csv.csv",
         variantSkus = await getArrayDataFromCSV(filename);
     
     if (!variantSkus) throw Error("import missing content!");
     
-    await deleteProductVariants(aceCatalogBcConnection, variantSkus);
+    await deleteProductVariants(catalogBcConnection, variantSkus);
 }
 
 await deleteVariantsBySku();

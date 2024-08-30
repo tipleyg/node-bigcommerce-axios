@@ -21,11 +21,11 @@ async function checkForProductVariants({ getProductIdBySKU, getProductVariantByP
 }
 
 async function doesVariantSkuExist() {    
-    const aceCatalogBcConnection = new AxiosBcConnection(),
+    const catalogBcConnection = new AxiosBcConnection(),
         filename = process.argv[2] || "csv.csv",
         variantSkus = await getArrayDataFromCSV(filename);
     
-    await checkForProductVariants(aceCatalogBcConnection, variantSkus);
+    await checkForProductVariants(catalogBcConnection, variantSkus);
     if (!variantSkus) throw Error("import missing content!");
     
 }
