@@ -108,12 +108,23 @@ export default class AxiosBcConnection {
         const paramString = this.getUrlParameters(urlParametersObj, { page }, { limit });
         
         try {
-            const response = await axios.get(`${this.baseV3CatalogProductsUrl}${paramString}`);
-    
-            //handling for meta.pagination.too_many key? 
-            //exclude the IDs that got included on this page and req the same page?
+            const response = (await axios.get(`${this.baseV3CatalogProductsUrl}${paramString}`)).data;
             
-            return response.data;
+            //create handling for meta.pagination.too_many key? 
+            if (response.meta.pagination.too_many) console.error(`
+                ERROR: TOO_MANY
+                ERROR: TOO_MANY
+                ERROR: TOO_MANY
+                ERROR: TOO_MANY
+                ERROR: TOO_MANY
+                ERROR: TOO_MANY
+                ERROR: TOO_MANY
+            `)
+            //BC indicated in BIGDEV training that too_many indicates that you received
+            //less data than you requested in this page
+            //todo: exclude the IDs that got included on this page and req the same-ish page with meta.pagination.current?
+            
+            return response;
         } catch (error) {
             throw Error(error);
         }
