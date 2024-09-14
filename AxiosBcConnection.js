@@ -79,59 +79,40 @@ export default class AxiosBcConnection {
         }
     }
 
-    getUrlParameters(params, ...args) {
-        args.forEach(arg => {
-            for (const key of Object.keys(arg)) {
-                params[key] = arg[key];
+    async getAllProducts(urlParameters = '', page = 0, limit = 25) {
+        let products = [];
+
+        do {
+            console.log(urlParameters || "got here");
+            try {
+                const response = (await axios.get(`${this.baseV3CatalogProductsUrl}${urlParameters}`)).data;
+                
+                //create handling for meta.pagination.too_many key? 
+                if (response.meta.pagination.too_many) {
+                    console.error(`
+                        ERROR: TOO_MANY
+                        ERROR: TOO_MANY
+                        ERROR: TOO_MANY
+                        ERROR: TOO_MANY
+                        ERROR: TOO_MANY
+                        ERROR: TOO_MANY
+                        ERROR: TOO_MANY
+                    `);
+                }
+                //BC indicated in BIGDEV training that too_many indicates that you received
+                //less data than you requested in this page
+                //TODO: exclude the IDs that got included on this page and req the same-ish page with meta.pagination.current?
+                //or observe whether meta.pagination.links.next automatically gives you the right "next" url
+
+                products = products.concat(response.data);
+                urlParameters = response?.meta?.pagination?.links?.next || null;
+            } catch (error) {
+                throw Error(error);
             }
-        });
+        } while (urlParameters);
 
-        let paramString = '?',
-        i = 0;
-
-        for (const param in params) {
-            paramString += `${i++ ? '&' : ''}${param}=${params[param]}`;
-        }
-
-        return paramString;
-    }
-
-    async getAllProducts(urlParametersObj = {}, page = 0, limit = 25) {
-        //include: When you specify options or modifiers, results are limited to 10 per page.
-        if (urlParametersObj.include && (urlParametersObj.include.includes("modifiers") || urlParametersObj.include.includes("options"))){
-            if (limit > 10) {
-                console.error("v3/products limit overridden to 10: modifiers or options");
-                limit = 10;
-            }
-        }
-
-        const paramString = this.getUrlParameters(urlParametersObj, { page }, { limit });
-
-        try {
-            const response = (await axios.get(`${this.baseV3CatalogProductsUrl}${paramString}`)).data;
-            
-            //create handling for meta.pagination.too_many key? 
-            if (response.meta.pagination.too_many) {
-                console.error(`
-                    ERROR: TOO_MANY
-                    ERROR: TOO_MANY
-                    ERROR: TOO_MANY
-                    ERROR: TOO_MANY
-                    ERROR: TOO_MANY
-                    ERROR: TOO_MANY
-                    ERROR: TOO_MANY
-                `);
-            }
-            //BC indicated in BIGDEV training that too_many indicates that you received
-            //less data than you requested in this page
-            //todo: exclude the IDs that got included on this page and req the same-ish page with meta.pagination.current?
-            
-            return response;
-        } catch (error) {
-            throw Error(error);
-        }
+        return products;
     }
 }
 
-
-//always return response.data.data unless you want meta too
+//always return response.data.data unless you want `meta` too
