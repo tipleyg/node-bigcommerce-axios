@@ -79,7 +79,7 @@ export default class AxiosBcConnection {
         }
     }
 
-    async getAllProducts(urlParameters = "", filterFunction = () => true) {
+    async getAllProducts(urlParameters = "", filterFunction = (() => true)) {
         console.log(urlParameters);
         if (urlParameters.length && urlParameters[0] !== "?") urlParameters = "?" + urlParameters;
         
@@ -110,7 +110,7 @@ export default class AxiosBcConnection {
                 return response.data.filter(filterFunction);
             }
         } catch (error) {
-            throw Error(error);
+            return [];
         }
     }
 }
