@@ -86,7 +86,20 @@ export default class AxiosBcConnection {
             const response = await axios.post(url, content);
 
             console.log(`created new ${productId}/options status:${response.status}`);
-            return response.data;
+            return response.data.data;
+        } catch (error) {
+            throw Error(error);
+        }
+    }
+
+    async createVariant(productId, content) {
+        try {
+            const url = `${this.baseV3CatalogProductsUrl}/${productId}/variants`;
+            
+            const response = await axios.post(url, content);
+
+            console.log(`created new ${productId}/variants status:${response.status}`);
+            return response.data.data;
         } catch (error) {
             throw Error(error);
         }
