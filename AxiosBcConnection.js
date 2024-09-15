@@ -83,12 +83,11 @@ export default class AxiosBcConnection {
         try {
             const url = `${this.baseV3CatalogProductsUrl}/${productId}/options`;
             
-            console.log(JSON.stringify(content));
             const response = await axios.post(url, content);
 
-            console.log(`created new ${productId}/options status:${response.status}`);return response.data;
+            console.log(`created new ${productId}/options status:${response.status}`);
+            return response.data;
         } catch (error) {
-            //console.log(error);
             throw Error(error);
         }
     }

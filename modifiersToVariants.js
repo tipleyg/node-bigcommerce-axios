@@ -30,8 +30,10 @@ async function main() {
         for (const prod of products) {
             if (prod.modifiers && prod.modifiers.length) {
                 //loop through modifiers and change names to *name* to free up that namespace
+                prod.variantOptions = [];
+
                 for (const mod of prod.modifiers) {
-                    console.log(`Product has modifiers: ${JSON.stringify(prod.modifiers.length)}`);
+                    //console.log(`Product has modifiers: ${JSON.stringify(prod.modifiers.length)}`);
 
                     const content = {
                         display_name: `*${mod.display_name.replace(/\*/g, '')}*`
@@ -39,9 +41,10 @@ async function main() {
                     
                     await liberateModifierNamespaces(prod.id, mod.id, content);
 
-                    mod.variantOption = (await createVariantOptions(prod.id, mod));
+                    prod.variantOptions.push(await createVariantOptions(prod.id, mod));
 
-                    console.log(JSON.stringify(mod.variantOption));
+                    
+                    //console.log(JSON.stringify(mod.variantOption));
                     //await makeVariantsFromModifiers()
                 }
             }
