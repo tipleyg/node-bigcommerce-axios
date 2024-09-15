@@ -1,4 +1,5 @@
 import AxiosBcConnection from './AxiosBcConnection.js';
+import * as fs from 'fs';
 
 async function main() {
     const cnxn = new AxiosBcConnection();
@@ -9,7 +10,7 @@ async function main() {
 
     async function createVariantOptions(prodId, mod) {
         const content = {
-            display_name: mod.display_name,//.replace(/\*/g, ""),
+            display_name: mod.display_name,
             product_id: prodId,
             type: mod.type,
             sort_order: mod.sort_order,
@@ -41,8 +42,6 @@ async function main() {
                 prod.varOpts = [];
 
                 for (const mod of prod.modifiers) {
-                    //console.log(`Product has modifiers: ${JSON.stringify(prod.modifiers.length)}`);
-
                     const content = {
                         display_name: `*${mod.display_name.replace(/\*/g, '')}*`
                     };
@@ -95,6 +94,7 @@ async function main() {
             }
         }
 
+        fs.writeFileSync("./varOpt.json", JSON.stringify(products, null, 2), { encoding: "utf-8" });
     }
 
     function getOptionCombinations(optionValues) {
