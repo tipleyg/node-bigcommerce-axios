@@ -79,7 +79,7 @@ async function main() {
             }
         }
 
-        fs.writeFileSync("./varOpt.json", JSON.stringify(products, null, 2), { encoding: "utf-8" });
+        //fs.writeFileSync("./varOpt.json", JSON.stringify(products, null, 2), { encoding: "utf-8" });
     }
 
     function getOptionCombinations(optionValues) {  //needs to include an optionId!!!
