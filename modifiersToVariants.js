@@ -81,6 +81,9 @@ async function main() {
                         });
                     }
 
+                    for (const mod of prod.modifiers) {
+                        await cnxn.deleteProductModifier(prod.id, mod.id)
+                    }
                 }
             }
         }
