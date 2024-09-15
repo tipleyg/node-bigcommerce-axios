@@ -77,13 +77,38 @@ export default class AxiosBcConnection {
         } catch (error) {
             throw Error(error);
         }
+    } 
+
+    async createVariantOption(productId, content) {
+        try {
+            const url = `${this.baseV3CatalogProductsUrl}/${productId}/options`;
+            
+            console.log(JSON.stringify(content));
+            const response = await axios.post(url, content);
+
+            console.log(`created new ${productId}/options status:${response.status}`);return response.data;
+        } catch (error) {
+            //console.log(error);
+            throw Error(error);
+        }
+    }
+
+    async updateProductModifier(productId, modifierId, content) {
+        try {
+            console.log(JSON.stringify(content));
+            const response = await axios.put(`${this.baseV3CatalogProductsUrl}/${productId}/modifiers/${modifierId}`, content);
+
+            console.log(`updated ${productId}/${modifierId} status:${response.status}`);
+        } catch (error) {
+            throw Error(error);
+        }
     }
 
     async getAllProducts(urlParameters = '', page = 0, limit = 25) {
         let products = [];
 
         do {
-            console.log(urlParameters || "got here");
+            console.log(urlParameters || "no params");
             try {
                 const response = (await axios.get(`${this.baseV3CatalogProductsUrl}${urlParameters}`)).data;
                 
@@ -102,6 +127,7 @@ export default class AxiosBcConnection {
                 //BC indicated in BIGDEV training that too_many indicates that you received
                 //less data than you requested in this page
                 //TODO: exclude the IDs that got included on this page and req the same-ish page with meta.pagination.current?
+                //id:not_in= then reduce response.data to just a string of product IDs on current page?
                 //or observe whether meta.pagination.links.next automatically gives you the right "next" url
 
                 products = products.concat(response.data);
