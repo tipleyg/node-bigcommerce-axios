@@ -48,7 +48,6 @@ async function main() {
                 // next, I recursively form the "variants" out of combinations of variant options                
                 if (prod.varOpts && prod.varOpts.length) {
                     prod.variants = [];
-                    //makeVariantsCreationPayloadsFromModifiers();
 
                     const optionValues = prod.varOpts.map(opt => {
                         opt.option_values.forEach(f => {
@@ -60,26 +59,29 @@ async function main() {
 
                     const combinations = getOptionCombinations(optionValues);
 
-                    const variant = {
+                    /*prod.variants = {
                         prod_id: prod.id,
                         sku: prod.sku,
                         price: prod.price,
-                        variants: combinations.map(vr => ({
+                        variantCombos: combinations.map(vr => ({
                             sku: prod.sku + '-' + n++,
                             prod_id: prod.id,
                             price: makePrice(prod.price, vr),
                             varCombo: vr
                         }))
-                    };
-
-                    prod.variants.push(variant);
+                    };*/
+                    prod.variants = combinations.map(vr => ({
+                        sku: prod.sku + '-' + n++,
+                        prod_id: prod.id,
+                        price: makePrice(prod.price, vr),
+                        varCombo: vr
+                    }));
 
 
                 }
             }
         }
 
-        //fs.writeFileSync("./varOpt.json", JSON.stringify(products, null, 2), { encoding: "utf-8" });
     }
 
     function getOptionCombinations(optionValues) {  //needs to include an optionId!!!
