@@ -1,12 +1,12 @@
 import AxiosBcConnection from './AxiosBcConnection.js';
 
-async function main() {    
+async function main() {
     const cnxn = new AxiosBcConnection();
 
     async function liberateModifierNamespaces(prodId, modId, content) {
         return cnxn.updateProductModifier(prodId, modId, content);
     }
-    
+
     async function createVariantOptions(prodId, mod) {
         const content = {
             display_name: mod.display_name,//.replace(/\*/g, ""),
@@ -25,44 +25,103 @@ async function main() {
     }
 
     async function makeVariantsFromModifiers() {
-        const products = await getAllProducts(); 
-    
+        const products = await getAllProducts();
+
         for (const prod of products) {
             if (prod.modifiers && prod.modifiers.length) {
                 //loop through modifiers and change names to *name* to free up that namespace
-                prod.variantOptions = [];
-
+                let n = 1;
+                prod.varOpts = [];
+                
                 for (const mod of prod.modifiers) {
                     //console.log(`Product has modifiers: ${JSON.stringify(prod.modifiers.length)}`);
-
+                    
                     const content = {
                         display_name: `*${mod.display_name.replace(/\*/g, '')}*`
-                    };            
+                    };
                     
                     await liberateModifierNamespaces(prod.id, mod.id, content);
 
-                    prod.variantOptions.push(await createVariantOptions(prod.id, mod));
+                    prod.varOpts.push(await createVariantOptions(prod.id, mod));
+                }
+                
+                // next, I recursively form the "variants" out of combinations of variant options                
+                if (prod.varOpts && prod.varOpts.length) {
+                    prod.variants = [];
+                    //makeVariantsCreationPayloadsFromModifiers();
 
-                    
-                    //console.log(JSON.stringify(mod.variantOption));
-                    //await makeVariantsFromModifiers()
+                    const optionValues = prod.varOpts.map(opt => {
+                        opt.option_values.forEach(f => {
+                            f.optParentId = opt.id;
+                        });
+
+                        return opt.option_values;  //array of arrays of option values
+                    });
+
+                    const combinations = getOptionCombinations(optionValues);
+
+                    const variant = {
+                        prod_id: prod.id,
+                        sku: prod.sku,
+                        price: prod.price,
+                        variants: combinations.map(vr => ({
+                            sku: prod.sku + '-' + n++,
+                            prod_id: prod.id,
+                            price: makePrice(prod.price, vr),
+                            varCombo: vr
+                        }))
+                    };
+
+                    prod.variants.push(variant);
+
+
                 }
             }
         }
+
+        fs.writeFileSync("./varOpt.json", JSON.stringify(products, null, 2), { encoding: "utf-8" });
     }
-    
+
+    function getOptionCombinations(optionValues) {  //needs to include an optionId!!!
+        if (optionValues.length === 0) return [[]];
+
+        const first = optionValues[0],
+            rest = getOptionCombinations(optionValues.slice(1)),
+            combinations = [];
+
+        for (let i = 0; i < first.length; i++) {
+            for (let j = 0; j < rest.length; j++) {
+                combinations.push([first[i], ...rest[j]]);
+            }
+        }
+
+        return combinations;
+    }
+
+    function makePrice(price, combo) {
+        let adjustments = 0;
+
+        for (const opt of combo) {
+            if (opt.priceAdjuster) {
+                adjustments += opt.priceAdjuster
+            }
+        }
+
+        return Number((price + adjustments).toFixed(2));
+    }
+
     async function getAllProducts() {
         const params = "?include=variants,modifiers"
-            +"&include_fields=name,sku,price,weight,page_title"
-            +"&id:in=43477", //includes product IDs
-        response = await cnxn.getAllProducts(params, 0, 10);
-    
+            + "&include_fields=name,sku,price,weight,page_title"
+            + "&id:in=43477", //includes product IDs
+            response = await cnxn.getAllProducts(params, 0, 10);
+
         console.log(`Products: ${JSON.stringify(response.length)}`);
-    
+
         return response;
     }
-    
     await makeVariantsFromModifiers();
+
 }
 
 await main();
