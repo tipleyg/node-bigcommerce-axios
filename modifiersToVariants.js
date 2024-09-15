@@ -1,30 +1,65 @@
 import AxiosBcConnection from './AxiosBcConnection.js';
-import { getArrayDataFromCSV, getParentSkuByVariantSku } from './utils.js';
 
-async function deleteProductVariants({ getProductIdBySKU, getProductVariantByProdId, deleteProductVariant }, variantSkus) {
+async function main() {    
+    const cnxn = new AxiosBcConnection();
 
-    for (const variantSku of variantSkus) {
-        const parentSku = getParentSkuByVariantSku(variantSku),
-            productId = await getProductIdBySKU(parentSku),
-            variantId = await getProductVariantByProdId(productId, variantSku);
-
-        if (!variantId) {
-            console.log(`variantId is falsy variantSku:${variantSku} productId:${productId} variantId:${variantId}`);
-            continue;
-        }
-
-        await deleteProductVariant(productId, variantId);
+    async function liberateModifierNamespaces(prodId, modId, content) {
+        return cnxn.updateProductModifier(prodId, modId, content);
     }
+    
+    async function createVariantOptions(prodId, mod) {
+        const content = {
+            display_name: mod.display_name,//.replace(/\*/g, ""),
+            product_id: prodId,
+            type: mod.type,
+            sort_order: mod.sort_order,
+            option_values: mod.option_values.map(ov => ({
+                is_default: ov.is_default,
+                label: ov.label,
+                sort_order: ov.sort_order,
+                value_data: {}
+            }))
+        };
+
+        return (await cnxn.createVariantOption(prodId, content));
+    }
+
+    async function makeVariantsFromModifiers() {
+        const products = await getAllProducts(); 
+    
+        for (const prod of products) {
+            if (prod.modifiers && prod.modifiers.length) {
+                //loop through modifiers and change names to *name* to free up that namespace
+                for (const mod of prod.modifiers) {
+                    console.log(`Product has modifiers: ${JSON.stringify(prod.modifiers.length)}`);
+
+                    const content = {
+                        display_name: `*${mod.display_name.replace(/\*/g, '')}*`
+                    };            
+                    
+                    await liberateModifierNamespaces(prod.id, mod.id, content);
+
+                    mod.variantOption = (await createVariantOptions(prod.id, mod));
+
+                    console.log(JSON.stringify(mod.variantOption));
+                    //await makeVariantsFromModifiers()
+                }
+            }
+        }
+    }
+    
+    async function getAllProducts() {
+        const params = "?include=variants,modifiers"
+            +"&include_fields=name,sku,price,weight,page_title"
+            +"&id:in=43477", //includes product IDs
+        response = await cnxn.getAllProducts(params, 0, 10);
+    
+        console.log(`Products: ${JSON.stringify(response.length)}`);
+    
+        return response;
+    }
+    
+    await makeVariantsFromModifiers();
 }
 
-async function deleteVariantsBySku() {    
-    const catalogBcConnection = new AxiosBcConnection(),
-        filename = process.argv[2] || "csv.csv",
-        variantSkus = await getArrayDataFromCSV(filename);
-    
-    if (!variantSkus) throw Error("import missing content!");
-    
-    await deleteProductVariants(catalogBcConnection, variantSkus);
-}
-
-await deleteVariantsBySku();
+await main();
