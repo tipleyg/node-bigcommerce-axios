@@ -59,17 +59,6 @@ async function main() {
 
                     const combinations = getOptionCombinations(optionValues);
 
-                    /*prod.variants = {
-                        prod_id: prod.id,
-                        sku: prod.sku,
-                        price: prod.price,
-                        variantCombos: combinations.map(vr => ({
-                            sku: prod.sku + '-' + n++,
-                            prod_id: prod.id,
-                            price: makePrice(prod.price, vr),
-                            varCombo: vr
-                        }))
-                    };*/
                     prod.variants = combinations.map(vr => ({
                         sku: prod.sku + '-' + n++,
                         prod_id: prod.id,
