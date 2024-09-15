@@ -19,12 +19,12 @@ export default class AxiosBcConnection {
             "xAuthToken": "xxxx",
             "storeHash": "xxxx"
         }*/
-    
+
         try {
             const configText = fs.readFileSync("config.json");
-            
+
             if (!configText) throw Error("config error in getConfig()");
-            
+
             return JSON.parse(configText);
         } catch (e) {
             throw Error("config error in getConfig()");
@@ -35,7 +35,7 @@ export default class AxiosBcConnection {
         try {
             const response = await axios.get(`${this.baseV3CatalogProductsUrl}/?sku=${sku}&include_fields=`),
                 product = response.data.data[0];
-    
+
             return product.id;
         } catch (error) {
             throw Error(error);
@@ -46,7 +46,7 @@ export default class AxiosBcConnection {
         try {
             const response = await axios.get(`${this.baseV3CatalogProductsUrl}/${productId}/variants?sku=${sku}&include_fields=sku`),
                 variant = response.data.data[0];
-            
+
             return variant?.id;
         } catch (error) {
             throw Error(error);
@@ -57,7 +57,17 @@ export default class AxiosBcConnection {
         try {
             const response = await axios.delete(`${this.baseV3CatalogProductsUrl}/${productId}/variants/${variantId}`);
 
-            console.log(`deleted ${productId}/${variantId} status:${response.status}`);
+            console.log(`deleted ${productId}/variants/${variantId} status:${response.status}`);
+        } catch (error) {
+            throw Error(error);
+        }
+    }
+
+    async deleteProductModifier(productId, modifierId) {
+        try {
+            const response = await axios.delete(`${this.baseV3CatalogProductsUrl}/${productId}/modifiers/${modifierId}`);
+
+            console.log(`deleted ${productId}/modifiers/${modifierId} status:${response.status}`);
         } catch (error) {
             throw Error(error);
         }
@@ -77,12 +87,12 @@ export default class AxiosBcConnection {
         } catch (error) {
             throw Error(error);
         }
-    } 
+    }
 
     async createVariantOption(productId, content) {
         try {
             const url = `${this.baseV3CatalogProductsUrl}/${productId}/options`;
-            
+
             const response = await axios.post(url, content);
 
             console.log(`created new ${productId}/options status:${response.status}`);
@@ -95,7 +105,7 @@ export default class AxiosBcConnection {
     async createVariant(productId, content) {
         try {
             const url = `${this.baseV3CatalogProductsUrl}/${productId}/variants`;
-            
+
             const response = await axios.post(url, content);
 
             console.log(`created new ${productId}/variants status:${response.status}`);
@@ -123,7 +133,7 @@ export default class AxiosBcConnection {
             console.log(urlParameters || "no params");
             try {
                 const response = (await axios.get(`${this.baseV3CatalogProductsUrl}${urlParameters}`)).data;
-                
+
                 //create handling for meta.pagination.too_many key? 
                 if (response.meta.pagination.too_many) {
                     console.error(`
