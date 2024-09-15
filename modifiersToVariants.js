@@ -32,19 +32,19 @@ async function main() {
                 //loop through modifiers and change names to *name* to free up that namespace
                 let n = 1;
                 prod.varOpts = [];
-                
+
                 for (const mod of prod.modifiers) {
                     //console.log(`Product has modifiers: ${JSON.stringify(prod.modifiers.length)}`);
-                    
+
                     const content = {
                         display_name: `*${mod.display_name.replace(/\*/g, '')}*`
                     };
-                    
+
                     await liberateModifierNamespaces(prod.id, mod.id, content);
 
                     prod.varOpts.push(await createVariantOptions(prod.id, mod));
                 }
-                
+
                 // next, I recursively form the "variants" out of combinations of variant options                
                 if (prod.varOpts && prod.varOpts.length) {
                     prod.variants = [];
@@ -66,6 +66,20 @@ async function main() {
                         varCombo: vr
                     }));
 
+                    for (const variant of prod.variants) {
+                        // create the variant in BC
+
+                        await cnxn.createVariant(prod.id, {
+                            sku: variant.sku,
+                            price: variant.price,
+                            option_values: variant.varCombo.map(vc => ({
+                                id: vc.id,
+                                label: vc.label,
+                                option_display_name: vc.label,
+                                option_id: vc.optParentId
+                            }))
+                        });
+                    }
 
                 }
             }
