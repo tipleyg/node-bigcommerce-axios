@@ -73,7 +73,7 @@ async function main() {
 
     }
 
-    function getOptionCombinations(optionValues) {  //needs to include an optionId!!!
+    function getOptionCombinations(optionValues) {
         if (optionValues.length === 0) return [[]];
 
         const first = optionValues[0],
@@ -111,8 +111,8 @@ async function main() {
 
         return response;
     }
-    await makeVariantsFromModifiers();
 
+    await makeVariantsFromModifiers();
 }
 
 await main();
