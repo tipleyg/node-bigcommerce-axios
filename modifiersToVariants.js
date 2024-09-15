@@ -24,11 +24,18 @@ async function main() {
         return (await cnxn.createVariantOption(prodId, content));
     }
 
+    function filterModifierTypes(mod) {
+        return ["radio_buttons", "rectangles", "dropdown", "swatch"].includes(mod.type)
+    }
+
     async function makeVariantsFromModifiers() {
         const products = await getAllProducts();
 
         for (const prod of products) {
             if (prod.modifiers && prod.modifiers.length) {
+                prod.modifiers = prod.modifiers.filter(filterModifierTypes);
+                if (!prod.modifiers.length) continue;
+
                 //loop through modifiers and change names to *name* to free up that namespace
                 let n = 1;
                 prod.varOpts = [];
@@ -121,7 +128,7 @@ async function main() {
     async function getAllProducts() {
         const params = "?include=variants,modifiers"
             + "&include_fields=name,sku,price,weight,page_title"
-            + "&id:in=43477", //includes product IDs
+            + "&id:in=2390", //includes product IDs
             response = await cnxn.getAllProducts(params, 0, 10);
 
         console.log(`Products: ${JSON.stringify(response.length)}`);
