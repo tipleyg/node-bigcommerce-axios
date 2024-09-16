@@ -8,6 +8,19 @@ async function main() {
         return cnxn.updateProductModifier(prodId, modId, content);
     }
 
+    function getPriceAdjuster(adjuster, prodId) {
+        if (adjuster && adjuster.price && adjuster.price.adjuster) {
+            if (adjuster.price.adjuster !== "relative") {
+                console.error(adjuster.price.adjuster);
+                throw error("Adjuster not 'relative' on prodID " + prodId);
+            } else {
+                return adjuster.price.adjuster_value;
+            }
+        }
+
+        return 0;
+    }
+
     async function createVariantOptions(prodId, mod) {
         const content = {
             display_name: mod.display_name,
@@ -21,8 +34,19 @@ async function main() {
                 value_data: {}
             }))
         };
+        const varOpt = (await cnxn.createVariantOption(prodId, content));
 
-        return (await cnxn.createVariantOption(prodId, content));
+        for (const ov of varOpt.option_values) {
+            //find the corresponding modifier option value
+            const modOptVal = mod.option_values.find(mov => {
+                return mov.label === ov.label;
+            });
+
+            //add its priceAdjuster here?
+            ov.priceAdjuster = getPriceAdjuster(modOptVal.adjusters, prodId);
+        }
+
+        return varOpt;
     }
 
     function filterModifierTypes(mod) {
@@ -128,7 +152,7 @@ async function main() {
     async function getAllProducts() {
         const params = "?include=variants,modifiers"
             + "&include_fields=name,sku,price,weight,page_title"
-            + "&id:in=2390", //includes product IDs
+            + "&id:in=43487", //includes product IDs
             response = await cnxn.getAllProducts(params, 0, 10);
 
         console.log(`Products: ${JSON.stringify(response.length)}`);
